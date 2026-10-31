@@ -49,7 +49,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"email\": \"usuario@helpdesk.local\",\n  \"password\": \"Usuario@123\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_login_admin",
@@ -71,7 +72,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"email\": \"admin@helpdesk.local\",\n  \"password\": \"Admin@123\",\n  \"admin\": true\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_login_wrong",
@@ -93,7 +95,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"email\": \"usuario@helpdesk.local\",\n  \"password\": \"errada\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 401', () => {\n  insomnia.expect(insomnia.response.code).to.eql(401);\n});\n"
     },
     {
       "_id": "req_login_user_as_admin",
@@ -115,7 +118,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"email\": \"usuario@helpdesk.local\",\n  \"password\": \"Usuario@123\",\n  \"admin\": true\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 401', () => {\n  insomnia.expect(insomnia.response.code).to.eql(401);\n});\n"
     },
     {
       "_id": "req_me_user",
@@ -133,7 +137,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_me_admin",
@@ -151,7 +156,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_me_noauth",
@@ -164,7 +170,8 @@
       "metaSortKey": 800,
       "headers": [],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 401', () => {\n  insomnia.expect(insomnia.response.code).to.eql(401);\n});\n"
     },
     {
       "_id": "fld_tickets",
@@ -184,7 +191,8 @@
       "metaSortKey": 1000,
       "headers": [],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 401', () => {\n  insomnia.expect(insomnia.response.code).to.eql(401);\n});\n"
     },
     {
       "_id": "req_tickets_user",
@@ -202,7 +210,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_tickets_admin",
@@ -220,7 +229,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_filter_status",
@@ -238,7 +248,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_filter_priority",
@@ -256,7 +267,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_filter_both",
@@ -274,7 +286,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_filter_user",
@@ -292,7 +305,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_filter_invalid",
@@ -310,7 +324,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 400', () => {\n  insomnia.expect(insomnia.response.code).to.eql(400);\n});\n"
     },
     {
       "_id": "req_ticket_other",
@@ -328,7 +343,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 404', () => {\n  insomnia.expect(insomnia.response.code).to.eql(404);\n});\n"
     },
     {
       "_id": "req_create_user",
@@ -354,7 +370,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"title\": \"Impressora sem toner\",\n  \"description\": \"A impressora do 2º andar parou\",\n  \"priority\": \"Media\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 201', () => {\n  insomnia.expect(insomnia.response.code).to.eql(201);\n});\n"
     },
     {
       "_id": "req_create_invalid",
@@ -380,7 +397,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"title\": \" \",\n  \"description\": \"x\",\n  \"priority\": \"Urgente\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 400', () => {\n  insomnia.expect(insomnia.response.code).to.eql(400);\n});\n"
     },
     {
       "_id": "req_patch_status_user",
@@ -406,7 +424,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"status\": \"Concluido\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 403', () => {\n  insomnia.expect(insomnia.response.code).to.eql(403);\n});\n"
     },
     {
       "_id": "req_patch_status_admin",
@@ -432,7 +451,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"status\": \"Em andamento\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "fld_delete",
@@ -457,7 +477,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_create_admin",
@@ -483,7 +504,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"title\": \"Impressora sem toner\",\n  \"description\": \"A impressora do 2º andar parou\",\n  \"priority\": \"Media\",\n  \"status\": \"Em andamento\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 201', () => {\n  insomnia.expect(insomnia.response.code).to.eql(201);\n});\n"
     },
     {
       "_id": "req_delete_admin",
@@ -501,7 +523,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_delete_other",
@@ -519,7 +542,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 404', () => {\n  insomnia.expect(insomnia.response.code).to.eql(404);\n});\n"
     },
     {
       "_id": "req_delete_missing",
@@ -537,7 +561,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 404', () => {\n  insomnia.expect(insomnia.response.code).to.eql(404);\n});\n"
     },
     {
       "_id": "fld_users",
@@ -562,7 +587,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 403', () => {\n  insomnia.expect(insomnia.response.code).to.eql(403);\n});\n"
     },
     {
       "_id": "req_users_create_user",
@@ -588,7 +614,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"name\": \"Teste\",\n  \"email\": \"teste@helpdesk.local\",\n  \"password\": \"Teste@1234\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 403', () => {\n  insomnia.expect(insomnia.response.code).to.eql(403);\n});\n"
     },
     {
       "_id": "req_users_list_admin",
@@ -606,7 +633,8 @@
         }
       ],
       "parameters": [],
-      "settings": {}
+      "settings": {},
+      "afterResponseScript": "insomnia.test('Status esperado: 200', () => {\n  insomnia.expect(insomnia.response.code).to.eql(200);\n});\n"
     },
     {
       "_id": "req_users_create_admin",
@@ -632,7 +660,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"name\": \"Novo Usuário\",\n  \"email\": \"novo{% now 'millis', '' %}@helpdesk.local\",\n  \"password\": \"Novo@12345\",\n  \"role\": \"usuario\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 201', () => {\n  insomnia.expect(insomnia.response.code).to.eql(201);\n});\n"
     },
     {
       "_id": "req_users_invalid",
@@ -658,7 +687,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"name\": \"X\",\n  \"email\": \"invalido\",\n  \"password\": \"123\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 400', () => {\n  insomnia.expect(insomnia.response.code).to.eql(400);\n});\n"
     },
     {
       "_id": "req_users_duplicate",
@@ -684,7 +714,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"name\": \"Dup\",\n  \"email\": \"usuario@helpdesk.local\",\n  \"password\": \"Dup@12345\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status esperado: 409', () => {\n  insomnia.expect(insomnia.response.code).to.eql(409);\n});\n"
     },
     {
       "_id": "fld_lock",
@@ -713,7 +744,8 @@
       "body": {
         "mimeType": "application/json",
         "text": "{\n  \"email\": \"bloqueio@helpdesk.local\",\n  \"password\": \"errada\"\n}"
-      }
+      },
+      "afterResponseScript": "insomnia.test('Status 401 (erro) ou 429 (bloqueado)', () => {\n  insomnia.expect([401, 429]).to.include(insomnia.response.code);\n});\n"
     },
     {
       "_id": "uts_backend",

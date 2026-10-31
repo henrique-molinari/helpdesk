@@ -74,7 +74,7 @@ Automáticos (26 testes, usam um banco temporário):
 npm test
 ```
 
-No Insomnia: importe `../testes-insomnia/HelpDesk-Backend.insomnia.json`, apague `data/database.json` e reinicie o servidor antes de rodar a suíte *Backend - regras de negócio* na aba *Test*.
+No Insomnia: importe `../testes-insomnia/HelpDesk-Backend.insomnia.json`, apague `data/database.json` e reinicie o servidor antes de rodar a suíte *Backend - regras de negócio* na aba *Test*. Cada requisição também tem um script pós-resposta: ao enviá-la, a aba *Tests* da resposta mostra se o status bateu com o esperado (verde = passou, vermelho = falhou).
 
 ## Estrutura
 
