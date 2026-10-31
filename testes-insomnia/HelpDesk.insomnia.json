@@ -1,0 +1,348 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-10-31T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v10.0.0",
+  "resources": [
+    {
+      "_id": "wrk_helpdesk",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "HelpDesk Lite",
+      "description": "Testes da API (helpdesk-jrs). Inicie a API em http://127.0.0.1:5050 antes de executar.",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_helpdesk",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://127.0.0.1:5050"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_helpdesk",
+      "name": "01 - Autenticação",
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_login_user",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login usuário",
+      "description": "Esperado: 200 e access_token.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth",
+      "metaSortKey": 200,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"usuario@helpdesk.local\",\n  \"password\": \"Usuario@123\"\n}"
+      }
+    },
+    {
+      "_id": "req_login_admin",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login administrador",
+      "description": "Esperado: 200 e access_token.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth",
+      "metaSortKey": 300,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@helpdesk.local\",\n  \"password\": \"Admin@123\",\n  \"admin\": true\n}"
+      }
+    },
+    {
+      "_id": "req_login_wrong",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login com senha errada",
+      "description": "Esperado: 403.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth",
+      "metaSortKey": 400,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"usuario@helpdesk.local\",\n  \"password\": \"errada\"\n}"
+      }
+    },
+    {
+      "_id": "req_login_admin_noflag",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login do admin sem admin:true",
+      "description": "Esperado: 403 (o admin só entra com admin:true).",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth",
+      "metaSortKey": 500,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@helpdesk.local\",\n  \"password\": \"Admin@123\"\n}"
+      }
+    },
+    {
+      "_id": "req_me_user",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Perfil do usuário (/me)",
+      "description": "Esperado: 200 com role usuario.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/me",
+      "metaSortKey": 600,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_me_admin",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Perfil do admin (/me)",
+      "description": "Esperado: 200 com role admin.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/me",
+      "metaSortKey": 700,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_me_noauth",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Perfil sem token",
+      "description": "Esperado: 403.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/me",
+      "metaSortKey": 800,
+      "headers": [],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "fld_tickets",
+      "_type": "request_group",
+      "parentId": "wrk_helpdesk",
+      "name": "02 - Chamados e permissões",
+      "metaSortKey": 900
+    },
+    {
+      "_id": "req_tickets_list",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Listar chamados (sem token)",
+      "description": "Esperado: 200. A rota GET /tickets é pública no config.yaml.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tickets",
+      "metaSortKey": 1000,
+      "headers": [],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_tickets_post_user",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Criar chamado como usuário",
+      "description": "Esperado: 403 (enableAdm: true).",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tickets",
+      "metaSortKey": 1100,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Teste usu\\u00e1rio\",\n  \"description\": \"Deve ser recusado\",\n  \"status\": \"Aberto\",\n  \"priority\": \"Baixa\"\n}"
+      }
+    },
+    {
+      "_id": "req_tickets_post_admin",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Criar chamado como admin",
+      "description": "Esperado: 200. Cria um chamado; execute depois 'Excluir chamado criado'.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tickets",
+      "metaSortKey": 1200,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Teste admin\",\n  \"description\": \"Criado pelo Insomnia\",\n  \"status\": \"Aberto\",\n  \"priority\": \"Baixa\"\n}"
+      }
+    },
+    {
+      "_id": "req_tickets_delete",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Excluir chamado criado (admin)",
+      "description": "Esperado: 200. Remove o chamado criado na requisição anterior.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/tickets/{% response 'body', 'req_tickets_post_admin', 'b64::JC5pZA==::46b', 'no-history', 60 %}",
+      "metaSortKey": 1300,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "uts_helpdesk",
+      "_type": "unit_test_suite",
+      "parentId": "wrk_helpdesk",
+      "name": "Login e permissões",
+      "metaSortKey": 1
+    },
+    {
+      "_id": "ut_1",
+      "_type": "unit_test",
+      "parentId": "uts_helpdesk",
+      "name": "Login do usuário retorna 200 e token",
+      "requestId": "req_login_user",
+      "metaSortKey": 1,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nconst b = JSON.parse(response1.data);\nexpect(b.access_token).to.be.a('string');"
+    },
+    {
+      "_id": "ut_2",
+      "_type": "unit_test",
+      "parentId": "uts_helpdesk",
+      "name": "Login do admin retorna 200 e token",
+      "requestId": "req_login_admin",
+      "metaSortKey": 2,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nconst b = JSON.parse(response1.data);\nexpect(b.access_token).to.be.a('string');"
+    },
+    {
+      "_id": "ut_3",
+      "_type": "unit_test",
+      "parentId": "uts_helpdesk",
+      "name": "Senha errada retorna 403",
+      "requestId": "req_login_wrong",
+      "metaSortKey": 3,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(403);"
+    },
+    {
+      "_id": "ut_4",
+      "_type": "unit_test",
+      "parentId": "uts_helpdesk",
+      "name": "Admin sem admin:true retorna 403",
+      "requestId": "req_login_admin_noflag",
+      "metaSortKey": 4,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(403);"
+    },
+    {
+      "_id": "ut_5",
+      "_type": "unit_test",
+      "parentId": "uts_helpdesk",
+      "name": "/me do usuário retorna role usuario",
+      "requestId": "req_me_user",
+      "metaSortKey": 5,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nexpect(JSON.parse(response1.data).role).to.equal('usuario');"
+    },
+    {
+      "_id": "ut_6",
+      "_type": "unit_test",
+      "parentId": "uts_helpdesk",
+      "name": "/me do admin retorna role admin",
+      "requestId": "req_me_admin",
+      "metaSortKey": 6,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nexpect(JSON.parse(response1.data).role).to.equal('admin');"
+    },
+    {
+      "_id": "ut_7",
+      "_type": "unit_test",
+      "parentId": "uts_helpdesk",
+      "name": "/me sem token retorna 403",
+      "requestId": "req_me_noauth",
+      "metaSortKey": 7,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(403);"
+    },
+    {
+      "_id": "ut_8",
+      "_type": "unit_test",
+      "parentId": "uts_helpdesk",
+      "name": "Listagem de chamados retorna 200",
+      "requestId": "req_tickets_list",
+      "metaSortKey": 8,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nexpect(JSON.parse(response1.data)).to.be.an('array');"
+    },
+    {
+      "_id": "ut_9",
+      "_type": "unit_test",
+      "parentId": "uts_helpdesk",
+      "name": "Usuário não cria chamado (403)",
+      "requestId": "req_tickets_post_user",
+      "metaSortKey": 9,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(403);"
+    }
+  ]
+}

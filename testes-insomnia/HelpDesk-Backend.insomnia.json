@@ -1,0 +1,978 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-10-31T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v10.0.0",
+  "resources": [
+    {
+      "_id": "wrk_helpdesk_backend",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "HelpDesk Backend (Node.js)",
+      "description": "Testes do helpdesk-backend-js. Inicie o backend em http://127.0.0.1:5050 com banco recém-criado (apague data/database.json) antes de rodar a suíte.",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_helpdesk_backend",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://127.0.0.1:5050"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_helpdesk_backend",
+      "name": "01 - Autenticação",
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_login_user",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login usuário",
+      "description": "Esperado: 200 e access_token.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth",
+      "metaSortKey": 200,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"usuario@helpdesk.local\",\n  \"password\": \"Usuario@123\"\n}"
+      }
+    },
+    {
+      "_id": "req_login_admin",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login administrador",
+      "description": "Esperado: 200 e access_token.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth",
+      "metaSortKey": 300,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@helpdesk.local\",\n  \"password\": \"Admin@123\",\n  \"admin\": true\n}"
+      }
+    },
+    {
+      "_id": "req_login_wrong",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login com senha errada",
+      "description": "Esperado: 401. Atenção: conta como tentativa falha para o bloqueio.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth",
+      "metaSortKey": 400,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"usuario@helpdesk.local\",\n  \"password\": \"errada\"\n}"
+      }
+    },
+    {
+      "_id": "req_login_user_as_admin",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Usuário comum com admin:true",
+      "description": "Esperado: 401 (admin:true só vale para administradores).",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth",
+      "metaSortKey": 500,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"usuario@helpdesk.local\",\n  \"password\": \"Usuario@123\",\n  \"admin\": true\n}"
+      }
+    },
+    {
+      "_id": "req_me_user",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Perfil do usuário (/me)",
+      "description": "Esperado: 200 com role usuario.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/me",
+      "metaSortKey": 600,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_me_admin",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Perfil do admin (/me)",
+      "description": "Esperado: 200 com role admin.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/me",
+      "metaSortKey": 700,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_me_noauth",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Perfil sem token",
+      "description": "Esperado: 401.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/me",
+      "metaSortKey": 800,
+      "headers": [],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "fld_tickets",
+      "_type": "request_group",
+      "parentId": "wrk_helpdesk_backend",
+      "name": "02 - Chamados (propriedade)",
+      "metaSortKey": 900
+    },
+    {
+      "_id": "req_tickets_noauth",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Listar chamados sem token",
+      "description": "Esperado: 401 (agora a rota é protegida).",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tickets",
+      "metaSortKey": 1000,
+      "headers": [],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_tickets_user",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Listar chamados como usuário",
+      "description": "Esperado: 200, somente chamados do próprio usuário.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tickets",
+      "metaSortKey": 1100,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_tickets_admin",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Listar chamados como admin",
+      "description": "Esperado: 200, todos os chamados.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tickets",
+      "metaSortKey": 1200,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_filter_status",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Filtrar por status (admin)",
+      "description": "Esperado: 200, somente chamados Abertos.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tickets?status=Aberto",
+      "metaSortKey": 1300,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_filter_priority",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Filtrar por prioridade (admin)",
+      "description": "Esperado: 200, somente prioridade Alta.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tickets?priority=Alta",
+      "metaSortKey": 1400,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_filter_both",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Filtrar por status e prioridade",
+      "description": "Esperado: 200, os dois filtros combinados. Aceita vários valores: priority=Alta,Baixa.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tickets?status=Em andamento&priority=Baixa",
+      "metaSortKey": 1500,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_filter_user",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Usuário filtra os próprios chamados",
+      "description": "Esperado: 200, só chamados Abertos do próprio usuário.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tickets?status=Aberto",
+      "metaSortKey": 1600,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_filter_invalid",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Filtro com valor inválido",
+      "description": "Esperado: 400.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tickets?status=Fechado",
+      "metaSortKey": 1700,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_ticket_other",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Usuário lê chamado de outra pessoa",
+      "description": "Esperado: 404 (o chamado 4 pertence a outro usuário).",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tickets/4",
+      "metaSortKey": 1800,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_create_user",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Criar chamado como usuário",
+      "description": "Esperado: 201, status Aberto e o usuário como dono.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tickets",
+      "metaSortKey": 1900,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Impressora sem toner\",\n  \"description\": \"A impressora do 2º andar parou\",\n  \"priority\": \"Media\"\n}"
+      }
+    },
+    {
+      "_id": "req_create_invalid",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Criar chamado inválido",
+      "description": "Esperado: 400.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tickets",
+      "metaSortKey": 2000,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \" \",\n  \"description\": \"x\",\n  \"priority\": \"Urgente\"\n}"
+      }
+    },
+    {
+      "_id": "req_patch_status_user",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Usuário tenta alterar status",
+      "description": "Esperado: 403. Execute antes 'Criar chamado como usuário'.",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tickets/{% response 'body', 'req_create_user', 'b64::JC5pZA==::46b', 'no-history', 60 %}",
+      "metaSortKey": 2100,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"Concluido\"\n}"
+      }
+    },
+    {
+      "_id": "req_patch_status_admin",
+      "_type": "request",
+      "parentId": "fld_tickets",
+      "name": "Admin altera status",
+      "description": "Esperado: 200. Execute antes 'Criar chamado como usuário'.",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tickets/{% response 'body', 'req_create_user', 'b64::JC5pZA==::46b', 'no-history', 60 %}",
+      "metaSortKey": 2200,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"Em andamento\"\n}"
+      }
+    },
+    {
+      "_id": "fld_delete",
+      "_type": "request_group",
+      "parentId": "wrk_helpdesk_backend",
+      "name": "03 - Exclusão de chamados",
+      "metaSortKey": 2300
+    },
+    {
+      "_id": "req_delete_own",
+      "_type": "request",
+      "parentId": "fld_delete",
+      "name": "Usuário exclui o próprio chamado",
+      "description": "Esperado: 200. Execute antes 'Criar chamado como usuário'.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/tickets/{% response 'body', 'req_create_user', 'b64::JC5pZA==::46b', 'no-history', 60 %}",
+      "metaSortKey": 2400,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_create_admin",
+      "_type": "request",
+      "parentId": "fld_delete",
+      "name": "Criar chamado como admin",
+      "description": "Esperado: 201 e status Em andamento.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tickets",
+      "metaSortKey": 2500,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Impressora sem toner\",\n  \"description\": \"A impressora do 2º andar parou\",\n  \"priority\": \"Media\",\n  \"status\": \"Em andamento\"\n}"
+      }
+    },
+    {
+      "_id": "req_delete_admin",
+      "_type": "request",
+      "parentId": "fld_delete",
+      "name": "Admin exclui chamado",
+      "description": "Esperado: 200. Execute antes 'Criar chamado como admin'.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/tickets/{% response 'body', 'req_create_admin', 'b64::JC5pZA==::46b', 'no-history', 60 %}",
+      "metaSortKey": 2600,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_delete_other",
+      "_type": "request",
+      "parentId": "fld_delete",
+      "name": "Usuário exclui chamado de outra pessoa",
+      "description": "Esperado: 404 (e o chamado continua existindo).",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/tickets/4",
+      "metaSortKey": 2700,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_delete_missing",
+      "_type": "request",
+      "parentId": "fld_delete",
+      "name": "Excluir chamado inexistente",
+      "description": "Esperado: 404.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/tickets/9999",
+      "metaSortKey": 2800,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "fld_users",
+      "_type": "request_group",
+      "parentId": "wrk_helpdesk_backend",
+      "name": "04 - Usuários (somente admin)",
+      "metaSortKey": 2900
+    },
+    {
+      "_id": "req_users_list_user",
+      "_type": "request",
+      "parentId": "fld_users",
+      "name": "Usuário lista usuários",
+      "description": "Esperado: 403.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/users",
+      "metaSortKey": 3000,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_users_create_user",
+      "_type": "request",
+      "parentId": "fld_users",
+      "name": "Usuário cria usuário",
+      "description": "Esperado: 403.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/users",
+      "metaSortKey": 3100,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_user', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Teste\",\n  \"email\": \"teste@helpdesk.local\",\n  \"password\": \"Teste@1234\"\n}"
+      }
+    },
+    {
+      "_id": "req_users_list_admin",
+      "_type": "request",
+      "parentId": "fld_users",
+      "name": "Admin lista usuários",
+      "description": "Esperado: 200, sem senhas.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/users",
+      "metaSortKey": 3200,
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {}
+    },
+    {
+      "_id": "req_users_create_admin",
+      "_type": "request",
+      "parentId": "fld_users",
+      "name": "Admin cria usuário",
+      "description": "Esperado: 201. O e-mail leva a hora atual para poder repetir o teste.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/users",
+      "metaSortKey": 3300,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Novo Usuário\",\n  \"email\": \"novo{% now 'millis', '' %}@helpdesk.local\",\n  \"password\": \"Novo@12345\",\n  \"role\": \"usuario\"\n}"
+      }
+    },
+    {
+      "_id": "req_users_invalid",
+      "_type": "request",
+      "parentId": "fld_users",
+      "name": "Admin cria usuário inválido",
+      "description": "Esperado: 400.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/users",
+      "metaSortKey": 3400,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"X\",\n  \"email\": \"invalido\",\n  \"password\": \"123\"\n}"
+      }
+    },
+    {
+      "_id": "req_users_duplicate",
+      "_type": "request",
+      "parentId": "fld_users",
+      "name": "Admin cria e-mail repetido",
+      "description": "Esperado: 409.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/users",
+      "metaSortKey": 3500,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {% response 'body', 'req_login_admin', 'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'always', 60 %}"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Dup\",\n  \"email\": \"usuario@helpdesk.local\",\n  \"password\": \"Dup@12345\"\n}"
+      }
+    },
+    {
+      "_id": "fld_lock",
+      "_type": "request_group",
+      "parentId": "wrk_helpdesk_backend",
+      "name": "05 - Bloqueio por tentativas",
+      "metaSortKey": 3600
+    },
+    {
+      "_id": "req_lock",
+      "_type": "request",
+      "parentId": "fld_lock",
+      "name": "Senha errada repetida (conta de teste)",
+      "description": "Envie 5 vezes: 401 nas cinco primeiras e 429 a partir da sexta, com retryAfterSeconds. Usa um e-mail de teste para não bloquear contas reais. O bloqueio dura 5 minutos.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth",
+      "metaSortKey": 3700,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "settings": {},
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"bloqueio@helpdesk.local\",\n  \"password\": \"errada\"\n}"
+      }
+    },
+    {
+      "_id": "uts_backend",
+      "_type": "unit_test_suite",
+      "parentId": "wrk_helpdesk_backend",
+      "name": "Backend - regras de negócio",
+      "metaSortKey": 1
+    },
+    {
+      "_id": "ut_1",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Login do usuário retorna 200 e token",
+      "requestId": "req_login_user",
+      "metaSortKey": 1,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nexpect(JSON.parse(response1.data).access_token).to.be.a('string');"
+    },
+    {
+      "_id": "ut_2",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Login do admin retorna 200 e token",
+      "requestId": "req_login_admin",
+      "metaSortKey": 2,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nexpect(JSON.parse(response1.data).access_token).to.be.a('string');"
+    },
+    {
+      "_id": "ut_3",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Usuário comum com admin:true retorna 401",
+      "requestId": "req_login_user_as_admin",
+      "metaSortKey": 3,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(401);"
+    },
+    {
+      "_id": "ut_4",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "/me do usuário retorna role usuario",
+      "requestId": "req_me_user",
+      "metaSortKey": 4,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nexpect(JSON.parse(response1.data).role).to.equal('usuario');"
+    },
+    {
+      "_id": "ut_5",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "/me do admin retorna role admin",
+      "requestId": "req_me_admin",
+      "metaSortKey": 5,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nexpect(JSON.parse(response1.data).role).to.equal('admin');"
+    },
+    {
+      "_id": "ut_6",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "/me sem token retorna 401",
+      "requestId": "req_me_noauth",
+      "metaSortKey": 6,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(401);"
+    },
+    {
+      "_id": "ut_7",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Listar chamados sem token retorna 401",
+      "requestId": "req_tickets_noauth",
+      "metaSortKey": 7,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(401);"
+    },
+    {
+      "_id": "ut_8",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Usuário vê só os próprios chamados",
+      "requestId": "req_tickets_user",
+      "metaSortKey": 8,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nconst list = JSON.parse(response1.data);\nexpect(list.length).to.be.above(0);\nconst owners = new Set(list.map((t) => t.ownerId));\nexpect(owners.size).to.equal(1);"
+    },
+    {
+      "_id": "ut_9",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Admin vê chamados de vários donos",
+      "requestId": "req_tickets_admin",
+      "metaSortKey": 9,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nconst owners = new Set(JSON.parse(response1.data).map((t) => t.ownerId));\nexpect(owners.size).to.be.above(1);"
+    },
+    {
+      "_id": "ut_10",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Filtro por status retorna só o status pedido",
+      "requestId": "req_filter_status",
+      "metaSortKey": 10,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nconst list = JSON.parse(response1.data);\nexpect(list.length).to.be.above(0);\nexpect(list.every((t) => t.status === 'Aberto')).to.equal(true);"
+    },
+    {
+      "_id": "ut_11",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Filtro por prioridade retorna só a prioridade pedida",
+      "requestId": "req_filter_priority",
+      "metaSortKey": 11,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nconst list = JSON.parse(response1.data);\nexpect(list.length).to.be.above(0);\nexpect(list.every((t) => t.priority === 'Alta')).to.equal(true);"
+    },
+    {
+      "_id": "ut_12",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Filtros de status e prioridade combinam",
+      "requestId": "req_filter_both",
+      "metaSortKey": 12,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nconst list = JSON.parse(response1.data);\nexpect(list.length).to.be.above(0);\nexpect(list.every((t) => t.status === 'Em andamento' && t.priority === 'Baixa')).to.equal(true);"
+    },
+    {
+      "_id": "ut_13",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Usuário filtra só dentro dos próprios chamados",
+      "requestId": "req_filter_user",
+      "metaSortKey": 13,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nconst list = JSON.parse(response1.data);\nexpect(new Set(list.map((t) => t.ownerId)).size).to.be.at.most(1);\nexpect(list.every((t) => t.status === 'Aberto')).to.equal(true);"
+    },
+    {
+      "_id": "ut_14",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Filtro inválido retorna 400",
+      "requestId": "req_filter_invalid",
+      "metaSortKey": 14,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(400);"
+    },
+    {
+      "_id": "ut_15",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Usuário não lê chamado de outra pessoa (404)",
+      "requestId": "req_ticket_other",
+      "metaSortKey": 15,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(404);"
+    },
+    {
+      "_id": "ut_16",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Chamado inválido retorna 400",
+      "requestId": "req_create_invalid",
+      "metaSortKey": 16,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(400);"
+    },
+    {
+      "_id": "ut_17",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Usuário cria e exclui o próprio chamado",
+      "requestId": "req_create_user",
+      "metaSortKey": 17,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(201);\nexpect(JSON.parse(response1.data).status).to.equal('Aberto');\nconst response2 = await insomnia.send('req_delete_own');\nexpect(response2.status).to.equal(200);"
+    },
+    {
+      "_id": "ut_18",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Usuário não altera o status do chamado (403)",
+      "requestId": "req_create_user",
+      "metaSortKey": 18,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(201);\nconst response2 = await insomnia.send('req_patch_status_user');\nexpect(response2.status).to.equal(403);\nconst response3 = await insomnia.send('req_delete_own');\nexpect(response3.status).to.equal(200);"
+    },
+    {
+      "_id": "ut_19",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Admin cria e exclui chamado",
+      "requestId": "req_create_admin",
+      "metaSortKey": 19,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(201);\nconst response2 = await insomnia.send('req_delete_admin');\nexpect(response2.status).to.equal(200);"
+    },
+    {
+      "_id": "ut_20",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Usuário não exclui chamado de outra pessoa (404)",
+      "requestId": "req_delete_other",
+      "metaSortKey": 20,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(404);"
+    },
+    {
+      "_id": "ut_21",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Excluir chamado inexistente retorna 404",
+      "requestId": "req_delete_missing",
+      "metaSortKey": 21,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(404);"
+    },
+    {
+      "_id": "ut_22",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Usuário não lista usuários (403)",
+      "requestId": "req_users_list_user",
+      "metaSortKey": 22,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(403);"
+    },
+    {
+      "_id": "ut_23",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Usuário não cria usuários (403)",
+      "requestId": "req_users_create_user",
+      "metaSortKey": 23,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(403);"
+    },
+    {
+      "_id": "ut_24",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Admin lista usuários sem senhas",
+      "requestId": "req_users_list_admin",
+      "metaSortKey": 24,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);\nconst list = JSON.parse(response1.data);\nexpect(list.every((u) => u.password === undefined && u.passwordHash === undefined)).to.equal(true);"
+    },
+    {
+      "_id": "ut_25",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Admin cria usuário (201)",
+      "requestId": "req_users_create_admin",
+      "metaSortKey": 25,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(201);\nexpect(JSON.parse(response1.data).role).to.equal('usuario');"
+    },
+    {
+      "_id": "ut_26",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Usuário inválido retorna 400",
+      "requestId": "req_users_invalid",
+      "metaSortKey": 26,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(400);"
+    },
+    {
+      "_id": "ut_27",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "E-mail repetido retorna 409",
+      "requestId": "req_users_duplicate",
+      "metaSortKey": 27,
+      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(409);"
+    },
+    {
+      "_id": "ut_28",
+      "_type": "unit_test",
+      "parentId": "uts_backend",
+      "name": "Bloqueia após tentativas erradas (429)",
+      "requestId": "req_lock",
+      "metaSortKey": 28,
+      "code": "const response1 = await insomnia.send();\nlet last = response1.status;\nfor (let i = 0; i < 7 && last !== 429; i++) {\n  last = (await insomnia.send()).status;\n}\nexpect(last).to.equal(429);"
+    }
+  ]
+}
